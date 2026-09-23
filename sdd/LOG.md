@@ -15,3 +15,9 @@ do MCP de Memórias (Wiki do Maico).
   e mapeamento com os critérios de aceitação do escopo.
 - Decisões de design: SQLite (sem serviço extra); um único container rodando servidor MCP + worker
   compartilhando o arquivo SQLite; Streamable HTTP transport em `:9000/mcp-memory`.
+
+## Passo 2 — Tarefas (TASKS.md)
+
+- Quebrei a especificação em 6 tarefas ordenadas (T1..T6): bootstrap TS, camada de banco,
+  servidor MCP, worker, empacotamento Docker, verificação end-to-end.
+- Cada tarefa tem critério de conclusão explícito e gera um commit.

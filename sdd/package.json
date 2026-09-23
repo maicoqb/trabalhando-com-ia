@@ -1,0 +1,25 @@
+{
+  "name": "mcp-memory-wiki",
+  "version": "1.0.0",
+  "description": "MCP de memórias que alimenta a Wiki do Maico via um LLM-curador",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start:server": "node dist/server.js",
+    "start:worker": "node dist/worker.js",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.19.1",
+    "better-sqlite3": "^11.10.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.0",
+    "typescript": "^5.7.3"
+  }
+}

@@ -4,10 +4,10 @@ Tarefas pequenas e ordenadas derivadas de [SPEC.md](./SPEC.md). Cada tarefa tem 
 conclusão e gera um commit. Marcação: `[ ]` pendente, `[x]` concluída.
 
 ## T1 — Bootstrap do projeto TypeScript
-- [ ] `package.json` (ESM, Node 22) com scripts `build`, `start:server`, `start:worker`, `start`.
-- [ ] Dependências: `@modelcontextprotocol/sdk`, `express`, `better-sqlite3`, `zod`.
+- [x] `package.json` (ESM, Node 22) com scripts `build`, `start:server`, `start:worker`, `start`.
+- [x] Dependências: `@modelcontextprotocol/sdk`, `express`, `better-sqlite3`, `zod`.
       Dev: `typescript`, `@types/node`, `@types/express`, `@types/better-sqlite3`.
-- [ ] `tsconfig.json` (target ES2022, module NodeNext, outDir `dist`, strict).
+- [x] `tsconfig.json` (target ES2022, module NodeNext, outDir `dist`, strict).
 - [ ] Estrutura `src/`.
 - **Concluído quando:** estrutura criada e `package.json`/`tsconfig.json` válidos.
 

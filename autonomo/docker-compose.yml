@@ -1,0 +1,45 @@
+# MCP de memórias — sobe com um único `docker compose up`.
+#
+# Dois serviços compartilham a mesma imagem e o mesmo volume SQLite:
+#  - server: expõe a tool record_memory em http://localhost:9000/mcp-memory
+#  - worker: consome a fila e invoca o `llm` (curador) da imagem node-llm
+#
+# network_mode: host é obrigatório: o comando `llm` e os MCPs da wiki respondem
+# no localhost do HOST; com host networking os containers os alcançam por
+# localhost diretamente (e o server publica a porta 9000 no host).
+
+services:
+  server:
+    build: .
+    image: mcp-memorias:latest
+    network_mode: host
+    command: ["node", "dist/server.js"]
+    environment:
+      MCP_PORT: "9000"
+      MCP_HOST: "0.0.0.0"
+      MCP_PATH: "/mcp-memory"
+      DB_PATH: "/app/data/memorias.sqlite"
+    volumes:
+      - memorias-data:/app/data
+    restart: unless-stopped
+
+  worker:
+    # Reusa a imagem construída pelo serviço server (mesmo build context).
+    build: .
+    image: mcp-memorias:latest
+    network_mode: host
+    command: ["node", "dist/worker.js"]
+    environment:
+      DB_PATH: "/app/data/memorias.sqlite"
+      LLM_COMMAND: "llm"
+      WORKER_POLL_INTERVAL_MS: "2000"
+      WORKER_MAX_ATTEMPTS: "3"
+      LLM_TIMEOUT_MS: "300000"
+    volumes:
+      - memorias-data:/app/data
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  memorias-data:

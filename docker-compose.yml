@@ -5,3 +5,12 @@ services:
       dockerfile: .mkdocs/Dockerfile
     network_mode: host
     restart: unless-stopped
+
+  mcp-wiki-write:
+    build:
+      context: .
+      dockerfile: mcp-write/Dockerfile
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./mcp-write/output:/output

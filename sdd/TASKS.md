@@ -33,12 +33,12 @@ conclusão e gera um commit. Marcação: `[ ]` pendente, `[x]` concluída.
 - **Concluído quando:** worker compila e processa uma memória invocando `llm` (SPEC RF5–RF10).
 
 ## T5 — Empacotamento Docker
-- [ ] `Dockerfile` — base `node-llm:latest`, copia projeto, `npm ci`, `npm run build`,
+- [x] `Dockerfile` — base `node-llm:latest`, copia projeto, `npm ci`, `npm run build`,
       comando que sobe servidor + worker (script `start`).
-- [ ] `docker-compose.yml` — serviço `mcp-memory`, `network_mode: host`, volume do SQLite,
+- [x] `docker-compose.yml` — serviço `mcp-memory`, `network_mode: host`, volume do SQLite,
       montagem read-only de `~/.kiro` e `~/.local/share/kiro-cli` (e `~/.aws` se existir)
       para o `llm` autenticar.
-- [ ] `.dockerignore`.
+- [x] `.dockerignore`.
 - **Concluído quando:** `docker compose up` sobe o serviço (SPEC §9, RNF1–RNF2).
 
 ## T6 — Verificação end-to-end

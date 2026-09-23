@@ -1,0 +1,22 @@
+services:
+  mcp-memory:
+    build: .
+    image: mcp-memory-wiki:latest
+    # Rede host: permite alcançar o MCP da wiki (localhost:9001) usado pelo curador
+    # e ser alcançado como MCP de memórias em localhost:9000, conforme o ESCOPO.
+    network_mode: host
+    environment:
+      DB_PATH: /data/memories.db
+      PORT: "9000"
+      MCP_PATH: /mcp-memory
+      HOST: 0.0.0.0
+    volumes:
+      # Persistência do banco de memórias entre reinícios.
+      - memory-data:/data
+    # A imagem node-llm já traz a autenticação do kiro-cli e a configuração do MCP
+    # da wiki (~/.kiro/settings/mcp.json → localhost:9001/mcp). Não montamos credenciais
+    # do host para não sobrescrever essa configuração pronta.
+    restart: unless-stopped
+
+volumes:
+  memory-data:

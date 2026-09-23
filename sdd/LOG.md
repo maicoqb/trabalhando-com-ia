@@ -54,3 +54,16 @@ do MCP de Memórias (Wiki do Maico).
 - `src/worker.ts`: loop de polling; `claimNextPending`; executa `llm "<prompt>"` via `execFile`;
   interpreta saída (IGNORADO→discarded, senão done; erro→error); `finishMemory`. Robusto a falhas.
 - `src/index.ts`: entrypoint que sobe servidor + worker como subprocessos no mesmo container.
+
+## Passo 7 — Empacotamento Docker (T7)
+
+- `Dockerfile`: base `node-llm:latest`, `npm ci`, `npm run build`, `ENTRYPOINT []` (sobrescreve o
+  `llm` da base) e `CMD ["node","dist/index.js"]`. `llm` continua no PATH para o worker.
+- `docker-compose.yml`: serviço `mcp-memory` com `network_mode: host`, volume `memory-data:/data`
+  e envs (DB_PATH, PORT, MCP_PATH, HOST).
+- **Achado importante:** a imagem `node-llm` **já traz a autenticação do kiro-cli e o
+  `~/.kiro/settings/mcp.json`** apontando para o MCP da wiki (`localhost:9001/mcp`). Verifiquei com
+  `docker run --rm --network host node-llm:latest "responda apenas OK"` → retornou `OK`. O host NÃO
+  tem `~/.kiro/settings/mcp.json`. Portanto NÃO montamos credenciais do host: isso sobrescreveria a
+  config pronta da wiki e quebraria a curadoria. Basta `network_mode: host` + volume do banco.
+- `.dockerignore` criado. `docker compose build` conclui com sucesso (npm ci + tsc dentro do Docker).

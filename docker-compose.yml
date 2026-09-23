@@ -1,0 +1,7 @@
+services:
+  mcp-wiki-read:
+    build:
+      context: .
+      dockerfile: .mkdocs/Dockerfile
+    network_mode: host
+    restart: unless-stopped

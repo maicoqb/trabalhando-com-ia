@@ -42,12 +42,34 @@ O detalhamento completo está no [ESCOPO.md](./ESCOPO.md), que é o mesmo para o
 
 ### Como a solução é validada
 
-A validação usa dois prompts aplicados ao MCP construído:
+A validação separa **dois eixos independentes**:
 
-- **Memória útil** — um prompt que força a geração de uma memória relevante, que **deve ser guardada** na wiki.
-- **Memória inútil** — um prompt que força a geração de uma memória irrelevante, que **deve ser descartada**.
+- **Ativação** — durante a conversa, o agente reconheceu que havia algo digno de memória e chamou a tool de coleta? É responsabilidade da descrição da tool.
+- **Processamento** — dado que a tool foi chamada, o MCP decidiu corretamente entre **guardar** (memória útil) e **descartar** (memória inútil)? É responsabilidade do MCP.
 
-Uma solução efetiva guarda a memória útil e descarta a inútil.
+A wiki-semente (a pasta [`wiki/`](./wiki)) é exposta por um **MCP de leitura**, que o MCP de memórias consome para saber o que já está guardado — e, com isso, julgar o que é relevante. Para isso são usados **três prompts**, aplicados em sequência:
+
+**1. Prompt introdutório (baseline)** — conversa neutra, sem nada memorável.
+
+> Oi! Tô voltando a mexer nos meus projetos essa semana. Me lembra rapidinho quais eu tenho por aqui e o que cada um faz?
+
+Prova duas coisas por contraste: (a) **só memórias são enviadas** — aqui a tool **não** deve ativar, mostrando que a coleta é seletiva e não dispara para qualquer mensagem; (b) estabelece uma **conversa em andamento**, para que a ativação dos prompts seguintes aconteça no meio de um diálogo real, não isolada.
+
+**2. Prompt de memória útil** — encadeado após o introdutório.
+
+> No estudo-kubernetes, o HPA por CPU não escalava o products-service mesmo com carga alta. Descobri que era porque o deployment não tinha `resources.requests.cpu` definido — sem request, o HPA não calcula a porcentagem de uso. Adicionei o request e passou a escalar.
+
+Esperado: a tool **ativa** (é um problema resolvido, no domínio da wiki) e o processamento **guarda** a memória.
+
+**3. Prompt de memória inútil** — encadeado após o introdutório.
+
+> Hoje perdi um tempão tentando compilar um projeto em Rust — o borrow checker reclamava de um valor movido dentro de um loop. Resolvi clonando o valor antes.
+
+Esperado: a tool **ativa** (tem forma de armadilha/achado), mas o processamento **descarta** — o assunto está fora do domínio da wiki (nenhum projeto usa Rust) e não agrega ao que já está guardado.
+
+O par útil/inútil tem propositalmente a **mesma forma** (ambos "resolvi um problema"); o que os separa é apenas a relevância ao domínio existente — justamente o que o MCP precisa saber julgar no processamento.
+
+Uma solução é **efetiva** quando guarda a memória útil e descarta a inútil; e demonstra **ativação correta** quando dispara a tool nos casos 2 e 3 e permanece em silêncio no caso 1.
 
 ## Resultados
 

@@ -42,8 +42,8 @@ conclusão e gera um commit. Marcação: `[ ]` pendente, `[x]` concluída.
 - **Concluído quando:** `docker compose up` sobe o serviço (SPEC §9, RNF1–RNF2).
 
 ## T6 — Verificação end-to-end
-- [ ] `npm run build` sem erros de TypeScript.
-- [ ] Subir o compose; verificar log de inicialização (servidor em :9000, worker ativo).
-- [ ] Handshake MCP + chamada `record_memory` (via cliente HTTP/JSON-RPC).
-- [ ] Confirmar persistência da memória e transição de status pelo worker.
+- [x] `npm run build` sem erros de TypeScript.
+- [x] Subir o compose; verificar log de inicialização (servidor em :9000, worker ativo).
+- [x] Handshake MCP + chamada `record_memory` (via cliente HTTP/JSON-RPC).
+- [x] Confirmar persistência da memória e transição de status pelo worker.
 - **Concluído quando:** fluxo coleta→persistência→processamento observado nos logs/DB.

@@ -67,3 +67,43 @@ do MCP de Memórias (Wiki do Maico).
   tem `~/.kiro/settings/mcp.json`. Portanto NÃO montamos credenciais do host: isso sobrescreveria a
   config pronta da wiki e quebraria a curadoria. Basta `network_mode: host` + volume do banco.
 - `.dockerignore` criado. `docker compose build` conclui com sucesso (npm ci + tsc dentro do Docker).
+
+## Passo 8 — Verificação end-to-end (T8)
+
+Executado dentro do Docker (`docker compose up -d`), onde o filesystem é Linux nativo.
+
+- **Sobe com um comando:** `docker compose up` levanta o serviço; logs mostram
+  `[server] MCP de memórias em http://localhost:9000/mcp-memory` e `[worker] iniciado`.
+- **Registrável como MCP:** `initialize` retorna `serverInfo` corretamente; `tools/list` lista
+  `record_memory` com o parâmetro `content` e a descrição durável/efêmero.
+- **Coleta não-bloqueante:** `tools/call record_memory` retorna `Memória registrada (#id)` na hora.
+- **Persistência crua:** a memória aparece no SQLite com status `pending` e o worker a transiciona
+  para `processing` (claim atômico).
+- **Dispara o curador:** os logs do curador mostram chamadas às tools `@maicoWiki` (`list_documents`,
+  `read_document`, `search`, `get_project_info`) — o worker invoca o `llm` com sucesso.
+- **Relevância relativa ao domínio (descarte correto):** memórias fora do domínio do Maico foram
+  corretamente `discarded` (ex.: "A capital da França é Paris..." e "O gato do vizinho miou...",
+  ambas com `IGNORADO:` explicando a falta de relação com os projetos do Maico).
+- **Robustez:** falha/timeout ao processar uma memória marca `error`/`discarded` e o worker continua
+  (novas memórias seguem sendo processadas).
+
+### Armadilhas resolvidas durante a verificação
+- **Curador lento por exploração excessiva:** na 1ª execução o curador rodava `find /`, lia arquivos
+  do projeto etc., estourando o timeout. Ajustei `src/curatorPrompt.ts` para focar nas tools do
+  `@maicoWiki` e não explorar o filesystem → curadoria passou a rodar em ~10–60s.
+
+### Limite do ambiente (fora do escopo controlável)
+- O MCP `@maicoWiki` fornecido expõe **apenas tools de leitura** (`search`, `read_document`,
+  `list_documents`, `get_project_info`, `get_document_outline`) — verificado via `tools/list` direto
+  em `http://localhost:9001/mcp`. Não há tool de escrita/criação. Por isso, mesmo quando o curador
+  julga a memória **relevante e nova**, ele não consegue materializar a página e reporta
+  `IGNORADO:relevante, mas o MCP @maicoWiki não expõe tool de escrita`. A escrita (critério 7)
+  depende dessa tool no MCP da wiki; o restante do fluxo (coleta, persistência, fila, worker,
+  invocação do curador e decisão relativa ao domínio) está funcionando e verificado.
+
+## Conclusão
+
+Solução funcionando de ponta a ponta e pronta para uso via `docker compose up`. O MCP de memórias
+coleta e persiste memórias cruas, o worker aciona o LLM-curador da Wiki do Maico, que consulta a
+wiki e decide relevância relativa ao domínio. A materialização de páginas fica condicionada à
+existência de uma tool de escrita no MCP da wiki (ausente no ambiente atual).

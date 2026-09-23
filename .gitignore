@@ -1,2 +1,5 @@
 .gambeta
 mcp-write/output/
+autonomo/data
+autonomo/dist
+autonomo/node_modules
